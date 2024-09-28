@@ -1,4 +1,6 @@
-﻿namespace Bankomaten
+﻿using System.Dynamic;
+
+namespace Bankomaten
 {
 	internal class Program
 	{
@@ -9,11 +11,74 @@
 
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Välkommen till banken");
+			Console.WriteLine("Välkommen till banken\n");
 			Login();
+
+			//check if someone logged in:
+			if (currentUserIndex > -1)
+			{
+				//Set title to current username
+				Console.Title = $"Inloggad som {Usernames[currentUserIndex]}";
+				Console.Clear();
+				NavigationMenu();
+
+			}
 		}
 
 
+		static void NavigationMenu()
+		{
+			int errorCount = 0;
+			while (true)
+			{
+				Console.SetCursorPosition(0, 0);
+				Console.WriteLine("1. Se dina konton och saldo");
+				Console.WriteLine("2. Överföring mellan konton");
+				Console.WriteLine("3. Ta ut pengar");
+				Console.WriteLine("4. Logga ut");
+				Console.Write("Val:          ");
+				Console.SetCursorPosition(4, 5);
+				string? userChoise = Console.ReadLine().Trim();
+
+				bool error = false;
+				switch (userChoise)
+				{
+					case "1":
+						break;
+					case "2":
+						break;
+					case "3":
+						break;
+					case "4":
+						break;
+					default:
+						error = true;
+						errorCount++;
+						printError(errorCount);
+						break;
+				}
+				//Clear errors if a correct opiton is selected
+				if (!error)
+				{
+					errorCount = 0;
+					Console.SetCursorPosition(0, 6);
+                    Console.Write("                  ");
+                }
+			}
+
+
+
+			void printError(int errorCount)
+			{
+				Console.SetCursorPosition(0, 6);
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine($"Ogiltig val ({errorCount})");
+				Console.ForegroundColor = ConsoleColor.White;
+
+			}
+
+
+		}
 
 		static void Login()
 		{
