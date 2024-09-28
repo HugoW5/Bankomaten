@@ -7,12 +7,32 @@ namespace Bankomaten
 		public static string[] Usernames = { "karl", "per", "kalle", "roland", "berra" };
 		public static string[] Passwords = { "apelsin123", "kolrot", "1234", "volvo", "fotboll" };
 
+		public static string[,] BankAccountNames =
+		{
+			{"Lönekonto", "Sparkonto" },
+			{"Lönekonto", "Sparkonto" },
+			{"Lönekonto", "Sparkonto" },
+			{"Lönekonto", "Sparkonto" },
+			{"Lönekonto", "Sparkonto" }
+		};
+
+		public static double[,] BankAccountBalances = {
+			{1000.00, 5000.00},
+			{1000.00, 5000.00},
+			{1000.00, 5000.00},
+			{1000.00, 5000.00},
+			{1000.00, 5000.00}
+		};
+
+
 		public static int currentUserIndex = -1;
 
 		static void Main(string[] args)
 		{
 			Console.WriteLine("Välkommen till banken\n");
-			Login();
+
+			//Login();
+			currentUserIndex = 0;
 
 			//check if someone logged in:
 			if (currentUserIndex > -1)
@@ -37,13 +57,14 @@ namespace Bankomaten
 				Console.WriteLine("3. Ta ut pengar");
 				Console.WriteLine("4. Logga ut");
 				Console.Write("Val:          ");
-				Console.SetCursorPosition(4, 5);
+				Console.SetCursorPosition(5, Console.GetCursorPosition().Top);
 				string? userChoise = Console.ReadLine().Trim();
 
 				bool error = false;
 				switch (userChoise)
 				{
 					case "1":
+						AccountsOverview();
 						break;
 					case "2":
 						break;
@@ -62,8 +83,8 @@ namespace Bankomaten
 				{
 					errorCount = 0;
 					Console.SetCursorPosition(0, 6);
-                    Console.Write("                  ");
-                }
+					Console.Write("                  ");
+				}
 			}
 
 
@@ -74,9 +95,26 @@ namespace Bankomaten
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine($"Ogiltig val ({errorCount})");
 				Console.ForegroundColor = ConsoleColor.White;
-
 			}
 
+
+		}
+
+
+
+		static void AccountsOverview()
+		{
+			Console.Clear();
+			Console.WriteLine("--Konto Översikt--\n");
+			double total = 0;
+			for (int i = 0; i < BankAccountBalances.GetLength(1); i++)
+			{
+				Console.WriteLine($"{BankAccountNames[currentUserIndex, i]} : {BankAccountBalances[currentUserIndex, i].ToString("N2")} SEK");
+				total += BankAccountBalances[currentUserIndex, i];
+			}
+			Console.WriteLine($"\nTotalt: {total.ToString("N2")} SEK");
+			Console.ReadLine();
+			Console.Clear();
 
 		}
 
