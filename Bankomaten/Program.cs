@@ -1,4 +1,5 @@
 ﻿using System.Dynamic;
+using System.Security.AccessControl;
 
 namespace Bankomaten
 {
@@ -67,6 +68,7 @@ namespace Bankomaten
 						AccountsOverview();
 						break;
 					case "2":
+						Transaction();
 						break;
 					case "3":
 						break;
@@ -102,6 +104,73 @@ namespace Bankomaten
 
 
 
+
+		static void Transaction()
+		{
+			Console.Clear();
+			Console.WriteLine("--Konton--\n");
+			for (int i = 0; i < BankAccountBalances.GetLength(1); i++)
+			{
+				Console.WriteLine($"{i}) {BankAccountNames[currentUserIndex, i]} : {BankAccountBalances[currentUserIndex, i].ToString("N2")} SEK");
+			}
+			while (true)
+			{
+				bool error = false;
+				try
+				{
+					Console.Write("Från Konto: ");
+					int fromAccount = int.Parse(Console.ReadLine());
+					string fromAccountName = BankAccountNames[currentUserIndex, fromAccount];
+					PrintMessage($"Hittade: {fromAccountName}", ConsoleColor.Green);
+					Console.Write("\nTill Konto: ");
+					int toAccount = int.Parse(Console.ReadLine());
+					string toAccountName = BankAccountNames[currentUserIndex, toAccount];
+
+					PrintMessage($"Hittade: {toAccountName}\n", ConsoleColor.Green);
+
+					while (true)
+					{
+						Console.Write("Summa att överföra: ");
+						if (double.TryParse(Console.ReadLine(), out double amount))
+						{
+							if (amount <= BankAccountBalances[currentUserIndex, fromAccount])
+							{
+								BankAccountBalances[currentUserIndex, fromAccount] -= amount;
+								BankAccountBalances[currentUserIndex, toAccount] += amount;
+								PrintMessage($"Skickade {amount} SEK från {fromAccountName} till {toAccountName}", ConsoleColor.Green);
+								Console.ReadLine();
+								Console.Clear();
+								break;
+							}
+							else
+							{
+								PrintMessage($"Du kan inte sicka mer än ditt saldo ({BankAccountBalances[currentUserIndex, fromAccount]} SEK) på konto {BankAccountNames[currentUserIndex, fromAccount]}\n", ConsoleColor.Red);
+							}
+
+
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					error = true;
+					PrintMessage("Fel\n", ConsoleColor.Red);
+				}
+				if (!error)
+				{
+					Console.Clear();
+					break;
+				}
+			}
+		}
+
+		static void PrintMessage(string msg, ConsoleColor color)
+		{
+			Console.ForegroundColor = color;
+			Console.Write(msg);
+			Console.ForegroundColor = ConsoleColor.White;
+		}
+
 		static void AccountsOverview()
 		{
 			Console.Clear();
@@ -115,7 +184,6 @@ namespace Bankomaten
 			Console.WriteLine($"\nTotalt: {total.ToString("N2")} SEK");
 			Console.ReadLine();
 			Console.Clear();
-
 		}
 
 		static void Login()
@@ -164,3 +232,4 @@ namespace Bankomaten
 		}
 	}
 }
+
