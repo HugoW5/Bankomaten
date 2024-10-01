@@ -1,19 +1,282 @@
-﻿namespace Bankomaten
+﻿using System.ComponentModel.DataAnnotations;
+using System.Dynamic;
+using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.Authentication;
+
+namespace Bankomaten
 {
 	internal class Program
 	{
 		public static string[] Usernames = { "karl", "per", "kalle", "roland", "berra" };
 		public static string[] Passwords = { "apelsin123", "kolrot", "1234", "volvo", "fotboll" };
 
+		public static string[,] BankAccountNames =
+		{
+			{"Lönekonto", "Sparkonto" },
+			{"Lönekonto", "Sparkonto" },
+			{"Lönekonto", "Sparkonto" },
+			{"Lönekonto", "Sparkonto" },
+			{"Lönekonto", "Sparkonto" }
+		};
+
+		public static double[,] BankAccountBalances = {
+			{1000.00, 5000.00},
+			{1000.00, 5000.00},
+			{1000.00, 5000.00},
+			{1000.00, 5000.00},
+			{1000.00, 5000.00}
+		};
+
+
 		public static int currentUserIndex = -1;
 
 		static void Main(string[] args)
 		{
-			Console.WriteLine("Välkommen till banken");
+			Console.WriteLine("Välkommen till banken\n");
+
+			Login();
+
+			//check if someone logged in:
+			if (currentUserIndex > -1)
+			{
+				//Set title to current username
+				Console.Title = $"Inloggad som {Usernames[currentUserIndex]}";
+				Console.Clear();
+				NavigationMenu();
+
+			}
+		}
+
+		static void NavigationMenu()
+		{
+			int errorCount = 0;
+			while (true)
+			{
+				Console.SetCursorPosition(0, 0);
+				Console.WriteLine("1. Se dina konton och saldo");
+				Console.WriteLine("2. Överföring mellan konton");
+				Console.WriteLine("3. Ta ut pengar");
+				Console.WriteLine("4. Logga ut");
+				Console.Write("Val:          ");
+				Console.SetCursorPosition(5, Console.GetCursorPosition().Top);
+				string? userChoise = Console.ReadLine().Trim();
+
+				bool error = false;
+				switch (userChoise)
+				{
+					case "1":
+						AccountsOverview();
+						break;
+					case "2":
+						Transaction();
+						break;
+					case "3":
+						Withdraw();
+						break;
+					case "4":
+						Logout();
+						break;
+					default:
+						error = true;
+						errorCount++;
+						printError(errorCount);
+						break;
+				}
+				//Clear errors if a correct opiton is selected
+				if (!error)
+				{
+					errorCount = 0;
+					Console.SetCursorPosition(0, 6);
+					Console.Write("                  ");
+				}
+			}
+
+			void printError(int errorCount)
+			{
+				Console.SetCursorPosition(0, 6);
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine($"Ogiltig val ({errorCount})");
+				Console.ForegroundColor = ConsoleColor.White;
+			}
+		}
+
+		static void Logout()
+		{
+			Console.Clear();
+			currentUserIndex = -1;
 			Login();
 		}
 
+		static void Withdraw()
+		{
+			Console.Clear();
+			Console.WriteLine("--Ta ut pengar--\n");
+			for (int i = 0; i < BankAccountBalances.GetLength(1); i++)
+			{
+				Console.WriteLine($"{i}) {BankAccountNames[currentUserIndex, i]} : {BankAccountBalances[currentUserIndex, i].ToString("N2")} SEK");
+			}
+			while (true)
+			{
+				bool error = false;
+				try
+				{
+					Console.Write("Från Konto: ");
+					int fromAccount = int.Parse(Console.ReadLine());
+					string fromAccountName = BankAccountNames[currentUserIndex, fromAccount];
+					PrintMessage($"Hittade: {fromAccountName}\n", ConsoleColor.Green);
+					while (true)
+					{
+						Console.Write("Summa att ta ut: ");
+						if (double.TryParse(Console.ReadLine(), out double amount))
+						{
+							if (amount <= BankAccountBalances[currentUserIndex, fromAccount])
+							{
+								Console.Write("\nLösenord: ");
+								string password = Console.ReadLine();
+								if (Authenticate(Usernames[currentUserIndex], password))
+								{
 
+									BankAccountBalances[currentUserIndex, fromAccount] -= amount;
+
+									PrintMessage($"Du tog ut {amount} SEK från {BankAccountNames[currentUserIndex, fromAccount]}\n", ConsoleColor.Green);
+
+									Console.WriteLine("Du erhåller: ");
+									string bankNotes = CalculateBanknotes(amount);
+									Console.WriteLine(bankNotes);
+									Console.WriteLine($"Nuvarnade Saldo: {BankAccountBalances[currentUserIndex, fromAccount].ToString("N2")} SEK");
+									Console.ReadLine();
+									Console.Clear();
+								}
+								break;
+							}
+							else
+							{
+								PrintMessage($"Du kan inte ta ut mer än ditt saldo ({BankAccountBalances[currentUserIndex, fromAccount]} SEK) på konto {BankAccountNames[currentUserIndex, fromAccount]}\n", ConsoleColor.Red);
+							}
+
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					error = true;
+					PrintMessage("Fel\n", ConsoleColor.Red);
+				}
+				if (!error)
+				{
+					Console.Clear();
+					break;
+				}
+			}
+		}
+
+		static string CalculateBanknotes(double amount)
+		{
+			int[] denominations = { 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1 };
+			double tmpAmount = amount;
+			string bankNotes = "";
+
+
+			for (int i = 0; i < denominations.Length; i++)
+			{
+				if (tmpAmount / denominations[i] >= 1)
+				{
+					int cashAmount = (int)Math.Floor(tmpAmount / denominations[i]);
+					if (cashAmount > 0)
+					{
+						tmpAmount -= cashAmount * denominations[i];
+					}
+					bankNotes += $"{cashAmount} x {denominations[i]} Kr\n";
+				}
+			}
+			if (tmpAmount > 0)
+			{
+				bankNotes += $"Och {Math.Round(tmpAmount * 100)} öre";
+			}
+			return bankNotes;
+		}
+
+		static void Transaction()
+		{
+			Console.Clear();
+			Console.WriteLine("--Konton--\n");
+			for (int i = 0; i < BankAccountBalances.GetLength(1); i++)
+			{
+				Console.WriteLine($"{i}) {BankAccountNames[currentUserIndex, i]} : {BankAccountBalances[currentUserIndex, i].ToString("N2")} SEK");
+			}
+			while (true)
+			{
+				bool error = false;
+				try
+				{
+					Console.Write("Från Konto: ");
+					int fromAccount = int.Parse(Console.ReadLine());
+					string fromAccountName = BankAccountNames[currentUserIndex, fromAccount];
+					PrintMessage($"Hittade: {fromAccountName}", ConsoleColor.Green);
+					Console.Write("\nTill Konto: ");
+					int toAccount = int.Parse(Console.ReadLine());
+					string toAccountName = BankAccountNames[currentUserIndex, toAccount];
+
+					PrintMessage($"Hittade: {toAccountName}\n", ConsoleColor.Green);
+
+					while (true)
+					{
+						Console.Write("Summa att överföra: ");
+						if (double.TryParse(Console.ReadLine(), out double amount))
+						{
+							if (amount <= BankAccountBalances[currentUserIndex, fromAccount])
+							{
+								BankAccountBalances[currentUserIndex, fromAccount] -= amount;
+								BankAccountBalances[currentUserIndex, toAccount] += amount;
+								PrintMessage($"Skickade {amount} SEK från {fromAccountName} till {toAccountName}", ConsoleColor.Green);
+								Console.ReadLine();
+								Console.Clear();
+								break;
+							}
+							else
+							{
+								PrintMessage($"Du kan inte sicka mer än ditt saldo ({BankAccountBalances[currentUserIndex, fromAccount]} SEK) på konto {BankAccountNames[currentUserIndex, fromAccount]}\n", ConsoleColor.Red);
+							}
+
+
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					error = true;
+					PrintMessage("Fel\n", ConsoleColor.Red);
+				}
+				if (!error)
+				{
+					Console.Clear();
+					break;
+				}
+			}
+		}
+
+		static void PrintMessage(string msg, ConsoleColor color)
+		{
+			Console.ForegroundColor = color;
+			Console.Write(msg);
+			Console.ForegroundColor = ConsoleColor.White;
+		}
+
+		static void AccountsOverview()
+		{
+			Console.Clear();
+			Console.WriteLine("--Konto Översikt--\n");
+			double total = 0;
+			for (int i = 0; i < BankAccountBalances.GetLength(1); i++)
+			{
+				Console.WriteLine($"{BankAccountNames[currentUserIndex, i]} : {BankAccountBalances[currentUserIndex, i].ToString("N2")} SEK");
+				total += BankAccountBalances[currentUserIndex, i];
+			}
+			Console.WriteLine($"\nTotalt: {total.ToString("N2")} SEK");
+			Console.ReadLine();
+			Console.Clear();
+		}
 
 		static void Login()
 		{
@@ -61,3 +324,4 @@
 		}
 	}
 }
+
