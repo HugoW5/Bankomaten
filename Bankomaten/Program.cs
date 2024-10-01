@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Dynamic;
+using System.Reflection;
 using System.Security.AccessControl;
+using System.Security.Authentication;
 
 namespace Bankomaten
 {
@@ -33,8 +35,7 @@ namespace Bankomaten
 		{
 			Console.WriteLine("Välkommen till banken\n");
 
-			//Login();
-			currentUserIndex = 0;
+			Login();
 
 			//check if someone logged in:
 			if (currentUserIndex > -1)
@@ -46,7 +47,6 @@ namespace Bankomaten
 
 			}
 		}
-
 
 		static void NavigationMenu()
 		{
@@ -75,6 +75,7 @@ namespace Bankomaten
 						Withdraw();
 						break;
 					case "4":
+						Logout();
 						break;
 					default:
 						error = true;
@@ -98,10 +99,14 @@ namespace Bankomaten
 				Console.WriteLine($"Ogiltig val ({errorCount})");
 				Console.ForegroundColor = ConsoleColor.White;
 			}
-
-
 		}
 
+		static void Logout()
+		{
+			Console.Clear();
+			currentUserIndex = -1;
+			Login();
+		}
 
 		static void Withdraw()
 		{
@@ -127,8 +132,8 @@ namespace Bankomaten
 						{
 							if (amount <= BankAccountBalances[currentUserIndex, fromAccount])
 							{
-                                Console.Write("\nLösenord: ");
-                                string password = Console.ReadLine();
+								Console.Write("\nLösenord: ");
+								string password = Console.ReadLine();
 								if (Authenticate(Usernames[currentUserIndex], password))
 								{
 
