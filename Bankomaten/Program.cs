@@ -3,6 +3,7 @@ using System.Dynamic;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Authentication;
+using System.Text;
 
 namespace Bankomaten
 {
@@ -42,7 +43,6 @@ namespace Bankomaten
 			{
 				//Set title to current username
 				Console.Title = $"Inloggad som {Usernames[currentUserIndex]}";
-				Console.Clear();
 				NavigationMenu();
 
 			}
@@ -50,6 +50,7 @@ namespace Bankomaten
 
 		static void NavigationMenu()
 		{
+			Console.Clear();
 			int errorCount = 0;
 			while (true)
 			{
@@ -87,8 +88,7 @@ namespace Bankomaten
 				if (!error)
 				{
 					errorCount = 0;
-					Console.SetCursorPosition(0, 6);
-					Console.Write("                  ");
+					break;
 				}
 			}
 
@@ -122,18 +122,18 @@ namespace Bankomaten
 				try
 				{
 					Console.Write("Från Konto: ");
-					int fromAccount = int.Parse(Console.ReadLine());
+					int fromAccount = int.Parse(ReadLineWithCancel());
 					string fromAccountName = BankAccountNames[currentUserIndex, fromAccount];
 					PrintMessage($"Hittade: {fromAccountName}\n", ConsoleColor.Green);
 					while (true)
 					{
 						Console.Write("Summa att ta ut: ");
-						if (double.TryParse(Console.ReadLine(), out double amount))
+						if (double.TryParse(ReadLineWithCancel(), out double amount))
 						{
 							if (amount <= BankAccountBalances[currentUserIndex, fromAccount])
 							{
 								Console.Write("\nLösenord: ");
-								string password = Console.ReadLine();
+								string password = ReadLineWithCancel();
 								if (Authenticate(Usernames[currentUserIndex], password))
 								{
 
@@ -165,7 +165,7 @@ namespace Bankomaten
 				}
 				if (!error)
 				{
-					Console.Clear();
+					NavigationMenu();
 					break;
 				}
 			}
@@ -211,11 +211,11 @@ namespace Bankomaten
 				try
 				{
 					Console.Write("Från Konto: ");
-					int fromAccount = int.Parse(Console.ReadLine());
+					int fromAccount = int.Parse(ReadLineWithCancel());
 					string fromAccountName = BankAccountNames[currentUserIndex, fromAccount];
 					PrintMessage($"Hittade: {fromAccountName}", ConsoleColor.Green);
 					Console.Write("\nTill Konto: ");
-					int toAccount = int.Parse(Console.ReadLine());
+					int toAccount = int.Parse(ReadLineWithCancel());
 					string toAccountName = BankAccountNames[currentUserIndex, toAccount];
 
 					PrintMessage($"Hittade: {toAccountName}\n", ConsoleColor.Green);
@@ -223,7 +223,7 @@ namespace Bankomaten
 					while (true)
 					{
 						Console.Write("Summa att överföra: ");
-						if (double.TryParse(Console.ReadLine(), out double amount))
+						if (double.TryParse(ReadLineWithCancel(), out double amount))
 						{
 							if (amount <= BankAccountBalances[currentUserIndex, fromAccount])
 							{
@@ -250,7 +250,7 @@ namespace Bankomaten
 				}
 				if (!error)
 				{
-					Console.Clear();
+					NavigationMenu();
 					break;
 				}
 			}
@@ -275,7 +275,7 @@ namespace Bankomaten
 			}
 			Console.WriteLine($"\nTotalt: {total.ToString("N2")} SEK");
 			Console.ReadLine();
-			Console.Clear();
+			NavigationMenu();
 		}
 
 		static void Login()
@@ -321,6 +321,48 @@ namespace Bankomaten
 			}
 			//No match
 			return false;
+		}
+
+		static string ReadLineWithCancel()
+		{
+			string result = null;
+
+			StringBuilder buffer = new StringBuilder();
+
+			/*The key is read passing true for the intercept argument to prevent
+			any characters from displaying when the Escape key is pressed.*/
+
+			ConsoleKeyInfo info = Console.ReadKey(true);
+			while (info.Key != ConsoleKey.Enter && info.Key != ConsoleKey.Escape)
+			{
+				if (info.Key == ConsoleKey.Backspace && buffer.Length > 0)
+				{
+					Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+					Console.Write(" ");
+					Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+					buffer.Remove(buffer.Length - 1, 1);
+					info = Console.ReadKey(true);
+				}
+				else
+				{
+					Console.Write(info.KeyChar);
+					buffer.Append(info.KeyChar);
+					info = Console.ReadKey(true);
+				}
+			}
+			if (info.Key == ConsoleKey.Escape)
+			{
+				NavigationMenu();
+			}
+
+			if (info.Key == ConsoleKey.Enter)
+			{
+				result = buffer.ToString();
+			}
+
+
+			Console.WriteLine();
+			return result;
 		}
 	}
 }
