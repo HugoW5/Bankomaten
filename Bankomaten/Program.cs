@@ -171,8 +171,14 @@ namespace Bankomaten
 			}
 		}
 
+		/// <summary>
+		/// Calculates the cash return from an withdrawl
+		/// </summary>
+		/// <param name="amount">Withdrawl amount</param>
+		/// <returns>string with amounts and type of bill</returns>
 		static string CalculateBanknotes(double amount)
 		{
+			//banknotes values
 			int[] denominations = { 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1 };
 			double tmpAmount = amount;
 			string bankNotes = "";
@@ -190,13 +196,17 @@ namespace Bankomaten
 					bankNotes += $"{cashAmount} x {denominations[i]} Kr\n";
 				}
 			}
+			//calculate cents
 			if (tmpAmount > 0)
 			{
+				//add cents
 				bankNotes += $"Och {Math.Round(tmpAmount * 100)} öre";
 			}
 			return bankNotes;
 		}
-
+		/// <summary>
+		/// Initiates a transaction between two of the users bankaccounts
+		/// </summary>
 		static void Transaction()
 		{
 			Console.Clear();
@@ -256,6 +266,11 @@ namespace Bankomaten
 			}
 		}
 
+		/// <summary>
+		/// Prints a message with color
+		/// </summary>
+		/// <param name="msg">String to write</param>
+		/// <param name="color">Text color</param>
 		static void PrintMessage(string msg, ConsoleColor color)
 		{
 			Console.ForegroundColor = color;
@@ -267,6 +282,7 @@ namespace Bankomaten
 		{
 			Console.Clear();
 			Console.WriteLine("--Konto Översikt--\n");
+			//total balance
 			double total = 0;
 			for (int i = 0; i < BankAccountBalances.GetLength(1); i++)
 			{
@@ -281,7 +297,7 @@ namespace Bankomaten
 		static void Login()
 		{
 			Console.WriteLine("Var god logga in");
-			int tries = 5;
+			int tries = 3;
 			while (tries > 0)
 			{
 				Console.Write("Användarnamn: ");
@@ -294,7 +310,8 @@ namespace Bankomaten
 					//Get inputUsername postion in Usernames[]
 					int index = Usernames.ToList().IndexOf(inputUsername);
 					currentUserIndex = index;
-					return;
+					NavigationMenu();
+					break;
 				}
 				//Authentication faied
 				Console.WriteLine("Fel användarnamn eller lösenord!");
@@ -305,7 +322,15 @@ namespace Bankomaten
 			Console.WriteLine("Du har gjort för många inloggnings försök");
 
 		}
-
+		/// <summary>
+		/// Authenticates a username with a password.
+		/// </summary>
+		/// <param name="loginUsername">Username</param>
+		/// <param name="loginPassword">Password</param>
+		/// <returns>
+		/// Returs true if the correct username and password is used,
+		/// Otherwise returs false.
+		/// </returns>
 		static bool Authenticate(string loginUsername, string loginPassword)
 		{
 			for (int i = 0; i < Usernames.Length; i++)
@@ -323,6 +348,10 @@ namespace Bankomaten
 			return false;
 		}
 
+		/// <summary>
+		/// ReadLine that can listen for specific key presses
+		/// </summary>
+		/// <returns>returns the inputed string</returns>
 		static string ReadLineWithCancel()
 		{
 			string result = null;
@@ -360,7 +389,7 @@ namespace Bankomaten
 				result = buffer.ToString();
 			}
 
-
+			//WriteLine to make the cursor jump down a line
 			Console.WriteLine();
 			return result;
 		}
