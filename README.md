@@ -1,7 +1,21 @@
+# Bankomaten
 Det här programmet simulerar en bank/bankomat. Programmet hanterar inloggning, kontosaldo, överföringar och uttag av pengar.
 
 
-## Klass variabler
+## Projektstruktur
+**Metoder**  
+`NavigationMenu()` Visar huvudmenyn och låter användaren navigera i programmet.  
+`Login()` Hanterar inloggningen, använder sig utav `Authenticate()` för att autentisera användarnamn och lösenord.  
+`Withdraw()` Låter anändaren ta ut pengar, använder sig utav `Authenticate()` och `CalculateBanknotes()`.  
+`Transaction()` Låter användaren skicka pengar mellan sina egna konton.  
+`AccountsOverview()` Visar en överblick över användarens konton med saldon och bankkonto nummer.  
+`Logout()` Loggar ut användaren och återgår till inloggings sidan.  
+`CalculateBanknotes()` Beräknar uttagsbeloppet i kontanter.  
+`Authenticate()` Autentisera användarnamn och lösenord.  
+`PrintMessage()` Skriver ut text i färg som tas genom parametrar.  
+`ReadLineWithCancel()` Fungerar som en ReadLine men kan lyssna efter specifika knapp tryck. Tex ESC avbryter & går till huvudmenyn
+
+### Klass variabler
 | Namn| Datatyp| Förklaring|
 |-|-|-|
 | `Usernames`           | `string[]`| En array som lagrar fördefinierade användarnamn för inloggning|
