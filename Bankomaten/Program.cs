@@ -145,7 +145,8 @@ namespace Bankomaten
 									string bankNotes = CalculateBanknotes(amount);
 									Console.WriteLine(bankNotes);
 									Console.WriteLine($"Nuvarnade Saldo: {BankAccountBalances[currentUserIndex, fromAccount].ToString("N2")} SEK");
-									Console.ReadLine();
+                                    Console.WriteLine("Klicka enter för att komma till huvudmenyn");
+                                    Console.ReadLine();
 									Console.Clear();
 								}
 								break;
@@ -239,8 +240,9 @@ namespace Bankomaten
 							{
 								BankAccountBalances[currentUserIndex, fromAccount] -= amount;
 								BankAccountBalances[currentUserIndex, toAccount] += amount;
-								PrintMessage($"Skickade {amount} SEK från {fromAccountName} till {toAccountName}", ConsoleColor.Green);
-								Console.ReadLine();
+								PrintMessage($"Skickade {amount} SEK från {fromAccountName} till {toAccountName}\n", ConsoleColor.Green);
+                                Console.WriteLine("Klicka enter för att komma till huvudmenyn");
+                                Console.ReadLine();
 								Console.Clear();
 								break;
 							}
@@ -290,7 +292,8 @@ namespace Bankomaten
 				total += BankAccountBalances[currentUserIndex, i];
 			}
 			Console.WriteLine($"\nTotalt: {total.ToString("N2")} SEK");
-			Console.ReadLine();
+            Console.WriteLine("Klicka enter för att komma till huvudmenyn");
+            Console.ReadLine();
 			NavigationMenu();
 		}
 
