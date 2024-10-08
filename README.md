@@ -30,3 +30,5 @@ Jag strukturerade programmet med olika metoder för varje fuktionalitet som till
 Jag hade kunnat göra färre metoder och skriva all logik i större metoder istället för att bryta ner programmet i mindre metoder. Däremot så hade det varit mycket sämre eftersom det hade gjort koden mer svårläst och svårare att felsöka. 
 
 Ett exempel på en förbättring kan vara att om jag hade använt jagged arrayer `[][]` istället  2d arrayer `[,]` till att spara `BankAccountNames` och `BankAccountBalances` så hade programmet kunnat vara mer skalbart eftersom alla platser jagged arrayer inte behöver vara lika stora. Då kan ett användarkonto till exempel ha 5 olika bankkonton medans ett annat bara har 1 eller 2.
+
+En annan förbättring som jag hade kunnat gjort hade varigt att använda data typen `decimal` istället för `double` eftersom decimal har mycket högre precision och är därför bättre att använda i banksystem på grund av att den avrundar tal med hög precision. Och på så sätt förlorar eller tjänar en använare inte på att göra överföringar.
